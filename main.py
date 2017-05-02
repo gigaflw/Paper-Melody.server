@@ -36,36 +36,37 @@ def main():
         ''' % time.asctime()
 
 
-@app.route("/login")
+@app.route("/login", methods=['POST'])
 def login():
-    name = request.args.get('name')
-    pw = request.args.get('pw')
-    dic, select_result = db.select(name, pw)
+    name = request.form.get('name')
+    pw = request.form.get('pw')
+    user_dic, select_result = db.select(name, pw)
 
     if select_result == 1:
-        # success
+        dic = {"error": 0, "msg": "OK", "result": user_dic}
         return jsonify(dic), 200
     elif select_result == 0:
-        string = "Wrong password"
-        return jsonify(string), 403
+        dic = {"error": 1, "msg": "Wrong password"}
+        return jsonify(dic), 403
     elif select_result == -1:
-        string = "User not exist"
-        return jsonify(string), 404
+        dic = {"error": 2, "msg": "User not exist"}
+        return jsonify(dic), 404
 
 
-@app.route("/register")
+@app.route("/register", methods=['POST'])
 def register():
-    name = request.args.get('name')
-    pw = request.args.get('pw')
+    name = request.form.get('name')
+    pw = request.form.get('pw')
     reg_result = db.insert(name, pw)
+    user_dic = {"name": name, "password": pw}
     print(reg_result)
 
     if reg_result == 1:
-        dic = {"name": name, "password": pw}
+        dic = {"result": user_dic, "error": 0, "msg": "OK"}
         return jsonify(dic), 201
     elif reg_result == 0:
-        string = "Exist such username"
-        return jsonify(string), 409
+        dic = {"error": 11, "msg": "Exist such username"}
+        return jsonify(dic), 409
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
