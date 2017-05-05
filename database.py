@@ -13,7 +13,7 @@ class DB(object):
         if not hasattr(self, "_db"):
             setattr(self, "_db", self._connect_db())
 
-    def select(self, name, pw):
+    def user_select(self, name, pw):
         cmd = "SELECT USERNAME, PASSWORD FROM USERS"
         map_value = self._db.execute(cmd)
         dic = dict(map_value)
@@ -21,21 +21,40 @@ class DB(object):
             result = dic.get(name, "")
             if result == pw:
                 dic = {"name": name, "password": pw}
-                return dic, 1
+                return dic, 0
             else:
-                return None, 0
-        return None, -1
+                return None, 1
+        return None, 2
 
-    def insert(self, name, pw):
+    def user_insert(self, name, pw):
         cmd = "SELECT USERNAME, PASSWORD FROM USERS"
         map_value = self._db.execute(cmd)
         dic = dict(map_value)
         if name in dic.keys():
-            return 0
+            return 1
         cmd = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('" + name + "', '" + pw + "')"
         self._db.execute(cmd)
         self._db.commit()
-        return 1
+        return 0
+
+    def music_get_all(self):
+        cmd = "SELECT * FROM ONLINEMUSICS"
+        online_musics = list(self._db.execute(cmd))
+        musics = []
+        for ind, name, author, date, link in online_musics:
+            dic = {"name": name, "author": author, "date": date, "link": link}
+            musics.append(dic)
+        return musics
+
+    def music_insert(self, name, author, create_time, link):
+        cmd = "SELECT NAME FROM ONLINEMUSICS"
+        names = self._db.execute(cmd)
+        if name in names:
+            return 1
+        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK) VALUES ('" + name + "', '" + author + "', '" + create_time + "', '" + link + "')"
+        self._db.execute(cmd)
+        self._db.commit()
+        return 0
 
     @classmethod
     def reset_db(cls):
