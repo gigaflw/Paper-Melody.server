@@ -56,6 +56,13 @@ class DB(object):
         self._db.commit()
         return 0
 
+    def get_comment(self,musicID):
+        cmd = ""
+        return ["this is good","I like it"], 2
+        
+    def upload_comment(self, musicID, user, time, comment):
+        return 1
+
     @classmethod
     def reset_db(cls):
         with closing(cls._connect_db()) as db:

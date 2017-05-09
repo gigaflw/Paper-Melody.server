@@ -97,6 +97,33 @@ def reset():
     db.reset_db()
     return "reset success", 200
 
+    
+@app.route("/getcomment", methods=['POST'])
+def getcomment():
+    musicID = request.form.get('id');
+    comment, num = db.get_comment(musicID);
+    if num<0:
+        return jsonify({"comment":"","error":1, "msg":"No such file"}),404      
+    else:
+        return jsonify({"comment":comment,"error":0,"msg":"ok"}),200
+    
+    
+
+@app.route("/uploadcomment", methods=['POST'])
+def uploadcomment():
+    id=request.form.get("id");
+    user=request.form.get("user")
+    comment=request.form.get("comment")
+    time=request.form.get("time")
+    upload_result=db.upload_comment(id, user, time, comment);
+    if upload_result == 0:
+        dic = {"error": 0, "msg": "OK"}
+        return jsonify(dic), 201
+    elif upload_result == 1:
+        dic = {"error": 21, "msg": "I dont know why"}
+        return jsonify(dic), 409
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
     #db.music_insert("国歌", "zb", "2017-05-04", "link1")
