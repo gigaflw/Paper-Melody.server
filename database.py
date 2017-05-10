@@ -54,14 +54,27 @@ class DB(object):
         cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK) VALUES ('" + name + "', '" + author + "', '" + create_time + "', '" + link + "')"
         self._db.execute(cmd)
         self._db.commit()
+        print('INSERT',name, author, create_time, link)
         return 0
 
     def get_comment(self,musicID):
-        cmd = ""
+        cmd = "SELECT MUSICID, AUTHOR, CREATETIME FROM COMMENTS";
+        dic=str(self._db.execute(cmd));
+        print(dic) 
         return ["this is good","I like it"], 2
         
-    def upload_comment(self, musicID, user, time, comment):
-        return 1
+    def upload_comment(self, commentID, musicID, user, time, comment):
+        cmd = "SELECT COMMENTID FROM COMMENTS"
+        names = self._db.execute(cmd)
+        if commentID in names:
+            return 1
+        cmd ="INSERT INTO COMMENTS (COMMENTID, MUSICID, AUTHOR, CREATETIME, COMMENT) "+\
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(commentID, musicID, user, time, comment);
+        print(cmd)
+        print("*************")
+        self._db.execute(cmd)
+        self._db.commit()
+        return 0
 
     @classmethod
     def reset_db(cls):
@@ -85,4 +98,3 @@ db = DB()
 
 if __name__ == '__main__':
     db.init()
-

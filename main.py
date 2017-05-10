@@ -98,9 +98,12 @@ def reset():
     return "reset success", 200
 
     
-@app.route("/getcomment", methods=['POST'])
-def getcomment():
-    musicID = request.form.get('id');
+@app.route("/getcomment/<musicID>", methods=['GET'])
+def getcomment(musicID):
+    while musicID[-1]=='/':
+        musicID=musicID[:-1]
+    #musicID=request.form.get("id")
+    print(musicID)
     comment, num = db.get_comment(musicID);
     if num<0:
         return jsonify({"comment":"","error":1, "msg":"No such file"}),404      
@@ -111,11 +114,12 @@ def getcomment():
 
 @app.route("/uploadcomment", methods=['POST'])
 def uploadcomment():
-    id=request.form.get("id");
+    print(request.form)
+    musicID=request.form.get("musicID");
     user=request.form.get("user")
     comment=request.form.get("comment")
     time=request.form.get("time")
-    upload_result=db.upload_comment(id, user, time, comment);
+    upload_result=db.upload_comment(str(musicID)+str(time), musicID, user, time, comment);
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
         return jsonify(dic), 201
@@ -125,7 +129,8 @@ def uploadcomment():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    #db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
     #db.music_insert("国歌", "zb", "2017-05-04", "link1")
     #db.music_insert("共青团团歌", "pyj", "2017-04-04", "link2")
     #db.music_insert("少先队队歌", "tth", "2015-05-04", "link3")
+    app.run(host='0.0.0.0', port=8080)
