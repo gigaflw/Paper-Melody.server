@@ -4,12 +4,15 @@
 # @Last Modified by:   gigaflower
 # @Last Modified time: 2017-04-19 10:10:13
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, url_for, send_from_directory
 from database import db
+import os
 import time
 
 app = Flask("PaperMelody")
 app.secret_key = "HgS diao"
+app.config['UPLOAD_FOLDER'] = '.\\uploaded'  # windows下的写法，linux可能不同
+app.config['allowed_ext'] = ['mid']  # 允许的文件后缀
 db.init()
 
 @app.route('/')
@@ -91,7 +94,27 @@ def uploadmusic():
         dic = {"error": 21, "msg": "Exist the same name"}
         return jsonify(dic), 409
     
+@app.route("/uploadFile", methods=['POST'])
+def uploadFile():
+    UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
+    # ALLOWED_EXT = ['mid']
+    # if request.method == 'POST':
+    file = request.files['userfile']
+    if file and file.filename.rsplit('.', 1)[1] in app.config['allowed_ext']:
+        file.save(os.path.join(UPLOAD_FOLDER, file.filename))
+        dic = {"link": url_for('uploaded_file', filename=file.filename), "error": 0, "msg": "OK"}
+        # return dic, 200
+        return dic['link'], 202
+    else:
+        return "error", 410
+        # return {"link": '', "error": 1, "msg": "failed"}, 502
 
+
+@app.route('/uploaded/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+	
+	
 @app.route("/reset", methods=['GET'])
 def reset():
     db.reset_db()
