@@ -15,6 +15,7 @@ app.config['UPLOAD_FOLDER'] = '.\\uploaded'  # windows下的写法，linux可能
 app.config['allowed_ext'] = ['mid']  # 允许的文件后缀
 db.init()
 
+
 @app.route('/')
 def main():
     return '''
@@ -93,7 +94,8 @@ def uploadmusic():
     elif upload_result == 1:
         dic = {"error": 21, "msg": "Exist the same name"}
         return jsonify(dic), 409
-    
+
+
 @app.route("/uploadFile", methods=['POST'])
 def uploadFile():
     UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
@@ -113,36 +115,35 @@ def uploadFile():
 @app.route('/uploaded/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-	
-	
+
+
 @app.route("/reset", methods=['GET'])
 def reset():
     db.reset_db()
     return "reset success", 200
 
-    
+
 @app.route("/getcomment/<musicID>", methods=['GET'])
 def getcomment(musicID):
-    while musicID[-1]=='/':
-        musicID=musicID[:-1]
-    #musicID=request.form.get("id")
+    while musicID[-1] == '/':
+        musicID = musicID[:-1]
+    # musicID=request.form.get("id")
     print(musicID)
-    comment, num = db.get_comment(musicID);
-    if num<0:
-        return jsonify({"comment":"","error":1, "msg":"No such file"}),404      
+    comment, num = db.get_comment(musicID)
+    if num < 0:
+        return jsonify({"comment": "", "error": 1, "msg": "No such file"}), 404
     else:
-        return jsonify({"comment":comment,"error":0,"msg":"ok"}),200
-    
-    
+        return jsonify({"comment": comment, "error": 0, "msg": "ok"}), 200
+
 
 @app.route("/uploadcomment", methods=['POST'])
 def uploadcomment():
     print(request.form)
-    musicID=request.form.get("musicID");
-    user=request.form.get("user")
-    comment=request.form.get("comment")
-    time=request.form.get("time")
-    upload_result=db.upload_comment(str(musicID)+str(time), musicID, user, time, comment);
+    musicID = request.form.get("musicID")
+    user = request.form.get("user")
+    comment = request.form.get("comment")
+    time = request.form.get("time")
+    upload_result = db.upload_comment(str(musicID) + str(time), musicID, user, time, comment);
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
         return jsonify(dic), 201
@@ -152,8 +153,9 @@ def uploadcomment():
 
 
 if __name__ == '__main__':
-    #db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
-    #db.music_insert("国歌", "zb", "2017-05-04", "link1")
-    #db.music_insert("共青团团歌", "pyj", "2017-04-04", "link2")
-    #db.music_insert("少先队队歌", "tth", "2015-05-04", "link3")
+    # db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
+    db.reset_db()
+    db.music_insert("国歌", "zb", "2017-05-04", "link1")
+    db.music_insert("共青团团歌", "pyj", "2017-04-04", "link2")
+    db.music_insert("少先队队歌", "tth", "2015-05-04", "link3")
     app.run(host='0.0.0.0', port=8080)
