@@ -163,7 +163,7 @@ def uploadcomment():
 if __name__ == '__main__':
     # db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
     db.reset_db()
-    db.music_insert("国歌", "zb", "2017-05-04", "link1")
-    db.music_insert("共青团团歌", "pyj", "2017-04-04", "link2")
-    db.music_insert("少先队队歌", "tth", "2015-05-04", "link3")
-    app.run(host='0.0.0.0', port=8080)
+    db.music_insert("National song", "zb", "2017-05-04", "link1")
+    db.music_insert("Gongqingtuan", "pyj", "2017-04-04", "link2")
+    db.music_insert("shaoxiandui", "tth", "2015-05-04", "link3")
+    app.run(host='0.0.0.0', port=80)
