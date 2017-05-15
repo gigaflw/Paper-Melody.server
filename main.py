@@ -123,8 +123,9 @@ def reset():
     return "reset success", 200
 
 
-@app.route("/getcomment/<musicID>", methods=['GET'])
+@app.route("/getcomment", methods=['POST'])
 def getcomment(musicID):
+    musicID=request.form.get("musicID")
     while musicID[-1] == '/':
         musicID = musicID[:-1]
     # musicID=request.form.get("id")
@@ -134,6 +135,13 @@ def getcomment(musicID):
         return jsonify({"comment": "", "error": 1, "msg": "No such file"}), 404
     else:
         return jsonify({"comment": comment, "error": 0, "msg": "ok"}), 200
+
+
+@app.route("/getallcomment", methods=['GET'])
+def getallcomment():
+    res=db.get_all_comment();
+    print(str(res))
+    return res
 
 
 @app.route("/uploadcomment", methods=['POST'])

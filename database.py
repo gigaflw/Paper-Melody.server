@@ -60,8 +60,13 @@ class DB(object):
     def get_comment(self,musicID):
         cmd = "SELECT MUSICID, AUTHOR, CREATETIME FROM COMMENTS";
         dic=str(self._db.execute(cmd));
-        print(dic) 
+        print(dic)
         return ["this is good","I like it"], 2
+    
+    def get_all_comment(self):
+        cmd = "SELECT * FROM COMMENTS"
+        all_comments = list(self._db.execute(cmd))
+        return str(all_comments)
         
     def upload_comment(self, commentID, musicID, user, time, comment):
         cmd = "SELECT COMMENTID FROM COMMENTS"
