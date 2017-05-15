@@ -11,8 +11,8 @@ import time
 
 app = Flask("PaperMelody")
 app.secret_key = "HgS diao"
-app.config['UPLOAD_FOLDER'] = '.\\uploaded'  # windows下的写法，linux可能不同
-app.config['allowed_ext'] = ['mid']  # 允许的文件后缀
+app.config['UPLOAD_FOLDER'] = '.\\uploaded'
+app.config['allowed_ext'] = ['mid']
 db.init()
 
 
@@ -125,7 +125,7 @@ def reset():
 
 @app.route("/getcomment", methods=['POST'])
 def getcomment(musicID):
-    musicID=request.form.get("musicID")
+    musicID = request.form.get("musicID")
     while musicID[-1] == '/':
         musicID = musicID[:-1]
     # musicID=request.form.get("id")
@@ -139,7 +139,7 @@ def getcomment(musicID):
 
 @app.route("/getallcomment", methods=['GET'])
 def getallcomment():
-    res=db.get_all_comment();
+    res = db.get_all_comment()
     print(str(res))
     return res
 
