@@ -41,20 +41,21 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         online_musics = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, date, link in online_musics:
-            dic = {"name": name, "author": author, "date": date, "link": link}
+        for ind, name, author, date, link, img_link in online_musics:
+            dic = {"name": name, "author": author, "date": date, "imglink": img_link}
             musics.append(dic)
         return musics
 
-    def music_insert(self, name, author, create_time, link):
+    def music_insert(self, name, author, create_time, music_link, img_link):
         cmd = "SELECT NAME FROM ONLINEMUSICS"
         names = self._db.execute(cmd)
         if name in names:
             return 1
-        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK) VALUES ('" + name + "', '" + author + "', '" + create_time + "', '" + link + "')"
+        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK, IMGLINK) "+\
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(name, author, create_time, music_link, img_link);
         self._db.execute(cmd)
         self._db.commit()
-        print('INSERT',name, author, create_time, link)
+        print('Insert', name, author, create_time, music_link, img_link)
         return 0
 
     def get_comment(self,musicID):
@@ -85,6 +86,14 @@ class DB(object):
         self._db.execute(cmd)
         self._db.commit()
         return 0
+
+    def get_next_musicid(self):
+        cmd = "SELECT IND, NAME FROM ONLINEMUSICS"
+        inds = list(self._db.execute(cmd))
+        ins = []
+        for ind, name in inds:
+            ins.append(ind)
+        return max(ins) + 1
 
     @classmethod
     def reset_db(cls):

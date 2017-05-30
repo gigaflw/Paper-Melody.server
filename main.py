@@ -6,6 +6,7 @@
 
 from flask import Flask, request, jsonify, redirect, url_for, send_from_directory
 from database import db
+from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER
 import os
 import time
 
@@ -14,6 +15,10 @@ app.secret_key = "HgS diao"
 app.config['UPLOAD_FOLDER'] = '.\\uploaded'
 app.config['allowed_ext'] = ['mid']
 db.init()
+
+
+def allowed_img(imgname):
+    return '.' in imgname and imgname.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
@@ -87,7 +92,9 @@ def uploadmusic():
     author = request.form.get('author')
     date = request.form.get('date')
     link = request.form.get('link')
-    upload_result = db.music_insert(name, author, date, link)
+    img_link = request.form.get('imglink')
+
+    upload_result = db.music_insert(name, author, date, link, img_link)
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
         return jsonify(dic), 201
@@ -164,10 +171,37 @@ def uploadcomment():
         return jsonify(dic), 409
 
 
+@app.route("/uploadimg", methods=['POST'])
+def uploadimg():
+    file = request.files['image']
+    if file and allowed_img(file.filename):
+        current_time = time.localtime()
+        filename =  time.strftime("%Y%m%d%H%M%S", current_time) + '.' + file.filename.rsplit('.', 1)[1]
+        link = "/getimage/" + filename
+        path = UPLOAD_IMAGE_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+        #path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
+        file.save(path)
+        print ("upload success: " + filename)
+        dic = {"imglink": link, "error": 0, "msg": "Upload img success"}
+        return jsonify(dic), 200
+    dic = {"error": 31, "msg": "Upload img failure"}
+    return jsonify(dic), 409
+
+
+@app.route("/getimage/<img_name>", methods=['GET'])
+def getimage(img_name):
+    path = UPLOAD_IMAGE_FOLDER + "/" + img_name   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+    print (path)
+    if os.path.isfile(path):
+    #if os.path.isfile(os.path.join(UPLOAD_IMAGE_FOLDER, img_name)):  # 服务器使用
+        return send_from_directory(UPLOAD_IMAGE_FOLDER, img_name, as_attachment=True)
+    abort(404)
+
+
 if __name__ == '__main__':
     # db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
     db.reset_db()
-    db.music_insert("National song", "zb", "2017-05-04", "link1")
-    db.music_insert("Gongqingtuan", "pyj", "2017-04-04", "link2")
-    db.music_insert("shaoxiandui", "tth", "2015-05-04", "link3")
+    db.music_insert("National song", "zb", "2017-05-04", "link1", "")
+    db.music_insert("Gongqingtuan", "pyj", "2017-04-04", "link2", "")
+    db.music_insert("shaoxiandui", "tth", "2015-05-04", "link3", "")
     app.run(host='0.0.0.0', port=80)
