@@ -41,18 +41,36 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         online_musics = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, date, link, img_link in online_musics:
-            dic = {"name": name, "author": author, "date": date, "imglink": img_link}
+        for ind, name, author, date, link, img_link, up_num, view_num in online_musics:
+            dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgLink": img_link, "upvoteNum": up_num, "viewNum": view_num}
             musics.append(dic)
         return musics
+
+    def music_update_num(self, musicID, up_num_differ, view_num_differ):
+        cmd = "SELECT * FROM ONLINEMUSICS"
+        num_list = list(self._db.execute(cmd))
+        upvote = 0
+        view = 0
+        dic = {}
+        for ind, name, author, date, link, img_link, up_num, view_num in num_list:
+            if int(musicID) == ind:
+                upvote = up_num + up_num_differ
+                view = view_num + view_num_differ
+                dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgLink": img_link, "upvoteNum": upvote, "viewNum": view}
+                break
+
+        print (str(musicID)+"\t"+str(view)+"\t"+str(upvote))
+        cmd = "UPDATE ONLINEMUSICS SET UPVOTENUM = '{0}', VIEWNUM = '{1}' WHERE IND = '{2}'".format(upvote, view, musicID)
+        self._db.execute(cmd)
+        return dic
 
     def music_insert(self, name, author, create_time, music_link, img_link):
         cmd = "SELECT NAME FROM ONLINEMUSICS"
         names = self._db.execute(cmd)
         if name in names:
             return 1
-        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK, IMGLINK) "+\
-        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(name, author, create_time, music_link, img_link);
+        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK, IMGLINK, UPVOTENUM, VIEWNUM) "+\
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')".format(name, author, create_time, music_link, img_link, 0, 0)
         self._db.execute(cmd)
         self._db.commit()
         print('Insert', name, author, create_time, music_link, img_link)
@@ -80,7 +98,7 @@ class DB(object):
         if commentID in names:
             return 1
         cmd ="INSERT INTO COMMENTS (COMMENTID, MUSICID, AUTHOR, CREATETIME, COMMENT) "+\
-        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(commentID, musicID, user, time, comment);
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(commentID, musicID, user, time, comment)
         print(cmd)
         print("*************")
         self._db.execute(cmd)

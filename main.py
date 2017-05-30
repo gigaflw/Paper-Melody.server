@@ -92,7 +92,7 @@ def uploadmusic():
     author = request.form.get('author')
     date = request.form.get('date')
     link = request.form.get('link')
-    img_link = request.form.get('imglink')
+    img_link = request.form.get('imgLink')
 
     upload_result = db.music_insert(name, author, date, link, img_link)
     if upload_result == 0:
@@ -196,6 +196,22 @@ def getimage(img_name):
     #if os.path.isfile(os.path.join(UPLOAD_IMAGE_FOLDER, img_name)):  # 服务器使用
         return send_from_directory(UPLOAD_IMAGE_FOLDER, img_name, as_attachment=True)
     abort(404)
+
+
+@app.route("/addview", methods=['POST'])
+def addview():
+    musicID = request.form.get("musicID")
+    db.music_update_num(musicID, 0, 1)
+    dic = {"error": 0, "msg": "OK"}
+    return jsonify(dic), 201
+
+
+@app.route("/addupvote", methods=['POST'])
+def addupvote():
+    musicID = request.form.get("musicID")
+    db.music_update_num(musicID, 1, 0)
+    dic = {"error": 0, "msg": "OK"}
+    return jsonify(dic), 201
 
 
 if __name__ == '__main__':
