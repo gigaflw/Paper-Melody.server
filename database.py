@@ -41,8 +41,8 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         online_musics = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, date, link, img_link, up_num, view_num in online_musics:
-            dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgLink": img_link, "upvoteNum": up_num, "viewNum": view_num}
+        for ind, name, author, date, link, img_name, up_num, view_num in online_musics:
+            dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
             musics.append(dic)
         return musics
 
@@ -52,28 +52,27 @@ class DB(object):
         upvote = 0
         view = 0
         dic = {}
-        for ind, name, author, date, link, img_link, up_num, view_num in num_list:
+        for ind, name, author, date, link, img_name, up_num, view_num in num_list:
             if int(musicID) == ind:
                 upvote = up_num + up_num_differ
                 view = view_num + view_num_differ
-                dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgLink": img_link, "upvoteNum": upvote, "viewNum": view}
+                dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgName": img_name, "upvoteNum": upvote, "viewNum": view}
                 break
-
-        print (str(musicID)+"\t"+str(view)+"\t"+str(upvote))
+        #print (str(musicID)+"\t"+str(view)+"\t"+str(upvote))
         cmd = "UPDATE ONLINEMUSICS SET UPVOTENUM = '{0}', VIEWNUM = '{1}' WHERE IND = '{2}'".format(upvote, view, musicID)
         self._db.execute(cmd)
         return dic
 
-    def music_insert(self, name, author, create_time, music_link, img_link):
+    def music_insert(self, name, author, create_time, music_link, img_name):
         cmd = "SELECT NAME FROM ONLINEMUSICS"
         names = self._db.execute(cmd)
         if name in names:
             return 1
-        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK, IMGLINK, UPVOTENUM, VIEWNUM) "+\
-        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')".format(name, author, create_time, music_link, img_link, 0, 0)
+        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK, IMGNAME, UPVOTENUM, VIEWNUM) "+\
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')".format(name, author, create_time, music_link, img_name, 0, 0)
         self._db.execute(cmd)
         self._db.commit()
-        print('Insert', name, author, create_time, music_link, img_link)
+        print('Insert', name, author, create_time, music_link, img_name)
         return 0
 
     def get_comment(self,musicID):

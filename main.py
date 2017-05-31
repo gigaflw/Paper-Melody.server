@@ -4,7 +4,7 @@
 # @Last Modified by:   gigaflower
 # @Last Modified time: 2017-04-19 10:10:13
 
-from flask import Flask, request, jsonify, redirect, url_for, send_from_directory
+from flask import Flask, request, jsonify, redirect, url_for, send_from_directory, abort
 from database import db
 from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER
 import os
@@ -92,9 +92,9 @@ def uploadmusic():
     author = request.form.get('author')
     date = request.form.get('date')
     link = request.form.get('link')
-    img_link = request.form.get('imgLink')
+    img_name = request.form.get('imgName')
 
-    upload_result = db.music_insert(name, author, date, link, img_link)
+    upload_result = db.music_insert(name, author, date, link, img_name)
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
         return jsonify(dic), 201
@@ -177,12 +177,11 @@ def uploadimg():
     if file and allowed_img(file.filename):
         current_time = time.localtime()
         filename =  time.strftime("%Y%m%d%H%M%S", current_time) + '.' + file.filename.rsplit('.', 1)[1]
-        link = "/getimage/" + filename
         path = UPLOAD_IMAGE_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
         #path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
         file.save(path)
         print ("upload success: " + filename)
-        dic = {"imglink": link, "error": 0, "msg": "Upload img success"}
+        dic = {"imgName": filename, "error": 0, "msg": "Upload img success"}
         return jsonify(dic), 200
     dic = {"error": 31, "msg": "Upload img failure"}
     return jsonify(dic), 409
