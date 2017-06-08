@@ -80,12 +80,14 @@ def register():
 
 @app.route("/onlinemusics", methods=['GET'])
 def onlinemusics():
-    order = request.args.get("order")
+    order = int(request.args.get("order"))
     list_musics = db.music_get_all()
     if (order == 1):
         list_musics = sorted(list_musics, key = lambda e: e.__getitem__('viewNum')) # 按照热度排序
+        print (list_musics)
     elif (order == 2):
         list_musics = sorted(list_musics, key = lambda e: e.__getitem__('upvoteNum')) # 按照点赞数排序
+        print (list_musics)
     list_musics.reverse()
     print (order)
     dic_musics = {"count": len(list_musics), "musics": list_musics}
