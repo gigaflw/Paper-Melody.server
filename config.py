@@ -11,5 +11,7 @@ DATABASE_PATH = os.path.join(DATABASE_DIR, 'app.db')
 DATABASE_SCHEMA_PATH = os.path.join(DATABASE_DIR, 'schema.sql')
 
 #UPLOAD_IMAGE_FOLDER = '/uploads/image'  #服务器使用的文件夹地址
+#UPLOAD__FOLDER = '/uploads/file'  #服务器使用的文件夹地址
+UPLOAD_FOLDER = 'D:/Computer Science/Github/Paper-Melody.server/uploads/file' # 本地测试使用的文件夹地址
 UPLOAD_IMAGE_FOLDER = 'D:/Computer Science/Github/Paper-Melody.server/uploads/image' # 本地测试使用的文件夹地址
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])

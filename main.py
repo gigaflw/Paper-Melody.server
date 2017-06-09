@@ -6,7 +6,7 @@
 
 from flask import Flask, request, jsonify, redirect, url_for, send_from_directory, abort
 from database import db
-from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER
+from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER, UPLOAD_FOLDER
 import os
 import time
 
@@ -84,10 +84,10 @@ def onlinemusics():
     list_musics = db.music_get_all()
     if (order == 1):
         list_musics = sorted(list_musics, key = lambda e: e.__getitem__('viewNum')) # 按照热度排序
-        print (list_musics)
+        #print (list_musics)
     elif (order == 2):
         list_musics = sorted(list_musics, key = lambda e: e.__getitem__('upvoteNum')) # 按照点赞数排序
-        print (list_musics)
+        #print (list_musics)
     list_musics.reverse()
     print (order)
     dic_musics = {"count": len(list_musics), "musics": list_musics}
@@ -130,6 +130,11 @@ def uploadFile():
 
 @app.route('/uploaded/<filename>')
 def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route("/downloadmusic/<filename>", methods=['GET'])
+def downloadMusic(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
