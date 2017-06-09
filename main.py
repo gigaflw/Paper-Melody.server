@@ -142,8 +142,6 @@ def reset():
 @app.route("/getcomment", methods=['GET'])
 def getcomment():
     musicID = request.args.get("musicID")
-    while musicID[-1] == '/':
-        musicID = musicID[:-1]
     # musicID=request.form.get("id")
     print(musicID)
     comments = db.get_comment(musicID)
@@ -153,7 +151,7 @@ def getcomment():
         return jsonify(dic), 404
     else:
         dic = {"result": dic_musics, "error": 0, "msg": "OK"}
-        print (dic)
+        #print (dic)
         return jsonify(dic), 200
 
 

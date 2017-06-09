@@ -75,13 +75,14 @@ class DB(object):
         print('Insert', name, author, create_time, music_link, img_name)
         return 0
 
-    def get_comment(self,musicID):
+    def get_comment(self, musicID):
         cmd = "SELECT MUSICID, AUTHOR, CREATETIME, COMMENT FROM COMMENTS";
         cmts = list(self._db.execute(cmd))
         comments = []
         for music_id, author, create_time, cmt in cmts:
-            dic = {"musicID": music_id, "author": author, "createTime": create_time, "comment": cmt}
-            comments.append(dic)
+            if (musicID == music_id):
+                dic = {"musicID": music_id, "author": author, "createTime": create_time, "comment": cmt}
+                comments.append(dic)
         print(comments)
         return comments
         #return ["this is good","I like it"], 2
