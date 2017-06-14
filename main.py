@@ -50,6 +50,7 @@ def login():
     name = request.form.get('name')
     pw = request.form.get('pw')
     user_dic, select_result = db.user_select(name, pw)
+    print (user_dic)
 
     if select_result == 0:
         dic = {"error": 0, "msg": "OK", "result": user_dic}
@@ -128,11 +129,6 @@ def uploadFile():
         # return {"link": '', "error": 1, "msg": "failed"}, 502
 
 
-@app.route('/uploaded/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
 @app.route("/downloadmusic/<filename>", methods=['GET'])
 def downloadMusic(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
@@ -141,7 +137,8 @@ def downloadMusic(filename):
 @app.route("/reset", methods=['GET'])
 def reset():
     db.reset_db()
-    return "reset success", 200
+    dic = {"error": 0, "msg": "OK"}
+    return jsonify(dic), 200
 
 
 @app.route("/getcomment", methods=['GET'])

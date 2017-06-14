@@ -13,17 +13,16 @@ class DB(object):
         if not hasattr(self, "_db"):
             setattr(self, "_db", self._connect_db())
 
-    def user_select(self, name, pw):
-        cmd = "SELECT USERNAME, PASSWORD FROM USERS"
-        map_value = self._db.execute(cmd)
-        dic = dict(map_value)
-        if name in dic.keys():
-            result = dic.get(name, "")
-            if result == pw:
-                dic = {"name": name, "password": pw}
-                return dic, 0
-            else:
-                return None, 1
+    def user_select(self, nm, pw):
+        cmd = "SELECT * FROM USERS"
+        list_value = self._db.execute(cmd)
+        for ind, name, password in list_value:
+            if name == nm:
+                if password == pw:
+                    dic = {"userID": ind, "name": name, "password": password}
+                    return dic, 0
+                else:
+                    return None, 1
         return None, 2
 
     def user_insert(self, name, pw):
