@@ -21,6 +21,13 @@ def allowed_img(imgname):
     return '.' in imgname and imgname.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+def reset_database():
+    db.reset_db()
+    db.music_insert("National song", "zb", 0, "2017-05-04", "link1", "")
+    db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "link2", "")
+    db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "link3", "")
+
+
 @app.route('/')
 def main():
     return '''
@@ -128,14 +135,14 @@ def uploadFile():
         # return {"link": '', "error": 1, "msg": "failed"}, 502
 
 
-@app.route("/downloadmusic/<filename>", methods=['GET'])
-def downloadMusic(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route("/downloadmusic/<fname>", methods=['GET'])
+def downloadMusic(fname):
+    return send_from_directory(UPLOAD_FOLDER, fname, as_attachment=True)
 
 
 @app.route("/reset", methods=['GET'])
 def reset():
-    db.reset_db()
+    reset_database()
     dic = {"error": 0, "msg": "OK"}
     return jsonify(dic), 200
 
@@ -210,15 +217,47 @@ def addview():
     musicID = request.form.get("musicID")
     db.music_update_num(musicID, 0, 1)
     dic = {"error": 0, "msg": "OK"}
-    return jsonify(dic), 201
+    return jsonify(dic), 200
+
+
+@app.route("/getupvotestatus", methods=['GET'])
+def getupvotestatus():
+    userID = int(request.args.get("userID"))
+    musicID = int(request.args.get("musicID"))
+    result, status = db.judge_favorites(userID, musicID)
+    dic = {"upvoteNum": result.get("upvoteNum"), "viewNum": result.get("viewNum"), "status": status, "error": 0, "msg": "OK"}
+    return jsonify(dic), 200
 
 
 @app.route("/addupvote", methods=['POST'])
 def addupvote():
-    musicID = request.form.get("musicID")
+    userID = int(request.form.get("userID"))
+    musicID = int(request.form.get("musicID"))
+    db.add_favorites(userID, musicID)
     db.music_update_num(musicID, 1, 0)
     dic = {"error": 0, "msg": "OK"}
-    return jsonify(dic), 201
+    return jsonify(dic), 200
+
+
+@app.route("/cancelupvote", methods=['POST'])
+def cancelupvote():
+    userID = int(request.form.get("userID"))
+    musicID = int(request.form.get("musicID"))
+    db.delete_favorites(userID, musicID)
+    db.music_update_num(musicID, -1, 0)
+    dic = {"error": 0, "msg": "OK"}
+    return jsonify(dic), 200
+
+
+@app.route("/getfavorites", methods=['GET'])
+def getfavorites():
+    userID = int(request.args.get("userID"))
+    list_musics = db.get_favorites(userID)
+    list_musics.reverse()
+    #print (list_musics)
+    dic_musics = {"count": len(list_musics), "musics": list_musics}
+    dic = {"result": dic_musics, "error": 0, "msg": "OK"}
+    return jsonify(dic), 200
 
 
 @app.route("/getuploadmusics", methods=['GET'])
@@ -226,7 +265,7 @@ def getuploadmusics():
     userID = int(request.args.get("userID"))
     list_musics = db.get_upload_musics(userID)
     list_musics.reverse()
-    print (list_musics)
+    #print (list_musics)
     dic_musics = {"count": len(list_musics), "musics": list_musics}
     dic = {"result": dic_musics, "error": 0, "msg": "OK"}
     return jsonify(dic), 200
@@ -234,8 +273,5 @@ def getuploadmusics():
 
 if __name__ == '__main__':
     # db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
-    db.reset_db()
-    db.music_insert("National song", "zb", 0, "2017-05-04", "link1", "")
-    db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "link2", "")
-    db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "link3", "")
+    reset_database()
     app.run(host='0.0.0.0', port=80)

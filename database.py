@@ -69,6 +69,7 @@ class DB(object):
         #print (str(musicID)+"\t"+str(view)+"\t"+str(upvote))
         cmd = "UPDATE ONLINEMUSICS SET UPVOTENUM = '{0}', VIEWNUM = '{1}' WHERE IND = '{2}'".format(upvote, view, musicID)
         self._db.execute(cmd)
+        self._db.commit()
         return dic
 
     def music_insert(self, name, author, authorID, create_time, music_link, img_name):
@@ -122,6 +123,49 @@ class DB(object):
                 dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
                 musics.append(dic)
         return musics
+
+    def judge_favorites(self, userID, musicID):
+        cmd = "SELECT AUTHORID, MUSICID FROM FAVORITES"
+        map_value = list(self._db.execute(cmd))
+        status = False
+        for author, music in map_value:
+            if author == userID and music == musicID:
+                status = True
+                break
+        cmd = "SELECT AUTHORID, IND, UPVOTENUM, VIEWNUM FROM ONLINEMUSICS"
+        num_list = list(self._db.execute(cmd))
+        for authorID, music, upvote, view in num_list:
+            if music == musicID:
+                dic = {"upvoteNum": upvote, "viewNum": view}
+                return dic, status
+        return None, status
+
+    def add_favorites(self, userID, musicID):
+        cmd ="INSERT INTO FAVORITES (AUTHORID, MUSICID) VALUES ('{0}', '{1}')".format(userID, musicID)
+        self._db.execute(cmd)
+        self._db.commit()
+
+    def get_favorites(self, userID):
+        cmd = "SELECT AUTHORID, MUSICID FROM FAVORITES"
+        map_value = list(self._db.execute(cmd))
+        musicIDs = []
+        for author, music in map_value:
+            if author == userID:
+                musicIDs.append(music)
+
+        cmd = "SELECT * FROM ONLINEMUSICS"
+        num_list = list(self._db.execute(cmd))
+        musics = []
+        for ind, name, author, authorID, date, link, img_name, up_num, view_num in num_list:
+            if ind in musicIDs:
+                dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+                musics.append(dic)
+        return musics
+
+    def delete_favorites(self, userID, musicID):
+        cmd = "DELETE FROM FAVORITES WHERE AUTHORID = '{0}' AND MUSICID = '{1}'".format(userID, musicID)
+        self._db.execute(cmd)
+        self._db.commit()
 
     def get_next_musicid(self):
         cmd = "SELECT IND, NAME FROM ONLINEMUSICS"
