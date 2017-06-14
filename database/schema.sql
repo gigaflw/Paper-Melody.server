@@ -12,6 +12,7 @@ CREATE TABLE ONLINEMUSICS
     IND         INTEGER PRIMARY KEY     NOT NULL,
     NAME        VARCHAR(128)            NOT NULL UNIQUE,
     AUTHOR      VARCHAR(32)             NOT NULL,
+    AUTHORID    INTEGER                 NOT NULL,
     CREATETIME  DATETIME                NOT NULL,
     MUSICLINK   VARCHAR(128)            NOT NULL,
     IMGNAME     VARCHAR(128)            NOT NULL,

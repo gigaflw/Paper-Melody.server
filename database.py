@@ -25,23 +25,32 @@ class DB(object):
                     return None, 1
         return None, 2
 
-    def user_insert(self, name, pw):
+    def user_insert(self, nm, pw):
         cmd = "SELECT USERNAME, PASSWORD FROM USERS"
         map_value = self._db.execute(cmd)
         dic = dict(map_value)
-        if name in dic.keys():
-            return 1
-        cmd = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('" + name + "', '" + pw + "')"
+        if nm in dic.keys():
+            return None, 1
+        cmd = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('{0}', '{1}')".format(nm, pw)
         self._db.execute(cmd)
         self._db.commit()
-        return 0
+        cmd = "SELECT * FROM USERS"
+        list_value = self._db.execute(cmd)
+        for ind, name, password in list_value:
+            if name == nm:
+                if password == pw:
+                    dic = {"userID": ind, "name": name, "password": password}
+                    return dic, 0
+                else:
+                    return None, 1
+        return None, 1
 
     def music_get_all(self):
         cmd = "SELECT * FROM ONLINEMUSICS"
         online_musics = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, date, link, img_name, up_num, view_num in online_musics:
-            dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+        for ind, name, author, authorID, date, link, img_name, up_num, view_num in online_musics:
+            dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
             musics.append(dic)
         return musics
 
@@ -51,27 +60,27 @@ class DB(object):
         upvote = 0
         view = 0
         dic = {}
-        for ind, name, author, date, link, img_name, up_num, view_num in num_list:
+        for ind, name, author, authorID, date, link, img_name, up_num, view_num in num_list:
             if int(musicID) == ind:
                 upvote = up_num + up_num_differ
                 view = view_num + view_num_differ
-                dic = {"musicID": ind, "name": name, "author": author, "date": date, "imgName": img_name, "upvoteNum": upvote, "viewNum": view}
+                dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
                 break
         #print (str(musicID)+"\t"+str(view)+"\t"+str(upvote))
         cmd = "UPDATE ONLINEMUSICS SET UPVOTENUM = '{0}', VIEWNUM = '{1}' WHERE IND = '{2}'".format(upvote, view, musicID)
         self._db.execute(cmd)
         return dic
 
-    def music_insert(self, name, author, create_time, music_link, img_name):
+    def music_insert(self, name, author, authorID, create_time, music_link, img_name):
         cmd = "SELECT NAME FROM ONLINEMUSICS"
         names = self._db.execute(cmd)
         if name in names:
             return 1
-        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, CREATETIME, MUSICLINK, IMGNAME, UPVOTENUM, VIEWNUM) "+\
-        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')".format(name, author, create_time, music_link, img_name, 0, 0)
+        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, AUTHORID, CREATETIME, MUSICLINK, IMGNAME, UPVOTENUM, VIEWNUM) "+\
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')".format(name, author, authorID, create_time, music_link, img_name, 0, 0)
         self._db.execute(cmd)
         self._db.commit()
-        print('Insert', name, author, create_time, music_link, img_name)
+        print('Insert', name, author, authorID, create_time, music_link, img_name)
         return 0
 
     def get_comment(self, musicID):
@@ -103,6 +112,16 @@ class DB(object):
         self._db.execute(cmd)
         self._db.commit()
         return 0
+
+    def get_upload_musics(self, userID):
+        cmd = "SELECT * FROM ONLINEMUSICS"
+        num_list = list(self._db.execute(cmd))
+        musics = []
+        for ind, name, author, authorID, date, link, img_name, up_num, view_num in num_list:
+            if authorID == userID:
+                dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+                musics.append(dic)
+        return musics
 
     def get_next_musicid(self):
         cmd = "SELECT IND, NAME FROM ONLINEMUSICS"

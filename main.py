@@ -67,9 +67,7 @@ def login():
 def register():
     name = request.form.get('name')
     pw = request.form.get('pw')
-    reg_result = db.user_insert(name, pw)
-    user_dic = {"name": name, "password": pw}
-    print(reg_result)
+    user_dic, reg_result = db.user_insert(name, pw)
 
     if reg_result == 0:
         dic = {"result": user_dic, "error": 0, "msg": "OK"}
@@ -100,11 +98,12 @@ def onlinemusics():
 def uploadmusic():
     name = request.form.get('name')
     author = request.form.get('author')
+    authorID = int(request.form.get('authorID'))
     date = request.form.get('date')
     link = request.form.get('link')
     img_name = request.form.get('imgName')
 
-    upload_result = db.music_insert(name, author, date, link, img_name)
+    upload_result = db.music_insert(name, author, authorID, date, link, img_name)
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
         return jsonify(dic), 201
@@ -222,10 +221,21 @@ def addupvote():
     return jsonify(dic), 201
 
 
+@app.route("/getuploadmusics", methods=['GET'])
+def getuploadmusics():
+    userID = int(request.args.get("userID"))
+    list_musics = db.get_upload_musics(userID)
+    list_musics.reverse()
+    print (list_musics)
+    dic_musics = {"count": len(list_musics), "musics": list_musics}
+    dic = {"result": dic_musics, "error": 0, "msg": "OK"}
+    return jsonify(dic), 200
+
+
 if __name__ == '__main__':
     # db.upload_comment('comment1','music1','tth','2018-2-3-12-23-2','this is great!')
     db.reset_db()
-    db.music_insert("National song", "zb", "2017-05-04", "link1", "")
-    db.music_insert("Gongqingtuan", "pyj", "2017-04-04", "link2", "")
-    db.music_insert("shaoxiandui", "tth", "2015-05-04", "link3", "")
+    db.music_insert("National song", "zb", 0, "2017-05-04", "link1", "")
+    db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "link2", "")
+    db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "link3", "")
     app.run(host='0.0.0.0', port=80)
