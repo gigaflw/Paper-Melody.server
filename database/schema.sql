@@ -47,5 +47,6 @@ CREATE TABLE MESSAGES
     AUTHORID    INTEGER                 NOT NULL,
     REPLYUSERID INTEGER                 NOT NULL,
     CREATETIME  DATETIME                NOT NULL,
+    NEWS        INTEGER                 NOT NULL,
     MESSAGE     VARCHAR(256)            NOT NULL
 );

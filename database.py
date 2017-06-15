@@ -2,16 +2,46 @@
 # @Author:      HgS_1217_
 # @Create Date: 2017/4/19
 
-import sqlite3
+import sqlite3, time
 
 from contextlib import closing
-from config import DATABASE_PATH, DATABASE_SCHEMA_PATH
+from config import DATABASE_PATH, DATABASE_SCHEMA_PATH, SYSTEM_BROADCAST
 
 
 class DB(object):
     def init(self):
         if not hasattr(self, "_db"):
             setattr(self, "_db", self._connect_db())
+
+    def insert_message(self, user, userID, reply_userID, time, msg):
+        cmd ="INSERT INTO MESSAGES (AUTHOR, AUTHORID, REPLYUSERID, CREATETIME, NEWS, MESSAGE)" +\
+                "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(user, userID, reply_userID, time, 1, msg)
+        self._db.execute(cmd)
+        self._db.commit()
+
+    def get_message(self, userID, has_read):
+        cmd = "SELECT * FROM MESSAGES"
+        msg_list = list(self._db.execute(cmd))
+        messages = []
+        new_msg = 0
+        for ind, author, authorID, reply_userID, time, news, msg in msg_list:
+            if userID == reply_userID:
+                dic = {"author": author, "createTime": time, "message": msg, "isNew": news == 1}
+                messages.append(dic)
+                if news == 1:
+                    new_msg += 1
+                    if has_read:
+                        cmd = "UPDATE MESSAGES SET NEWS = '{0}' WHERE IND = '{1}'".format(0, ind)
+                        self._db.execute(cmd)
+                        self._db.commit()
+        return messages, new_msg
+
+    def system_broadcast(self, time, msg):
+        cmd = "SELECT IND FROM USERS"
+        list_value = self._db.execute(cmd)
+        for ind in list_value:
+            insert_message(SYSTEM_BROADCAST, 0, ind, time, msg)
+
 
     def user_select(self, nm, pw):
         cmd = "SELECT * FROM USERS"
@@ -40,6 +70,9 @@ class DB(object):
             if name == nm:
                 if password == pw:
                     dic = {"userID": ind, "name": name, "password": password}
+                    current_time = time.localtime()
+                    str_time =  time.strftime("%Y-%m-%d %H:%M:%S", current_time)
+                    self.insert_message(SYSTEM_BROADCAST, 0, ind, str_time, "欢迎来到Paper Melody!!")
                     return dic, 0
                 else:
                     return None, 1
@@ -165,22 +198,6 @@ class DB(object):
         cmd = "DELETE FROM FAVORITES WHERE AUTHORID = '{0}' AND MUSICID = '{1}'".format(userID, musicID)
         self._db.execute(cmd)
         self._db.commit()
-
-    def insert_message(self, user, userID, reply_userID, time, msg):
-        cmd ="INSERT INTO MESSAGES (AUTHOR, AUTHORID, REPLYUSERID, CREATETIME, MESSAGE)" +\
-                "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(user, userID, reply_userID, time, msg)
-        self._db.execute(cmd)
-        self._db.commit()
-
-    def get_message(self, userID):
-        cmd = "SELECT * FROM MESSAGES"
-        msg_list = list(self._db.execute(cmd))
-        messages = []
-        for ind, author, authorID, reply_userID, time, msg in msg_list:
-            if userID == reply_userID or authorID <= 0:
-                dic = {"author": author, "createTime": time, "message": msg}
-                messages.append(dic)
-        return messages
 
     def get_next_musicid(self):
         cmd = "SELECT IND, NAME FROM ONLINEMUSICS"

@@ -27,7 +27,7 @@ def reset_database():
     db.music_insert("National song", "zb", 0, "2017-05-04", "link1", "")
     db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "link2", "")
     db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "link3", "")
-    db.insert_message("系统消息", 0, 0, "2017-06-15", "欢迎来到Paper Melody!!")
+    #db.insert_message("系统消息", 0, 0, "2017-06-15", "欢迎来到Paper Melody!!")
 
 
 @app.route('/')
@@ -80,7 +80,7 @@ def register():
 
     if reg_result == 0:
         dic = {"result": user_dic, "error": 0, "msg": "OK"}
-        return jsonify(dic), 201
+        return jsonify(dic), 200
     elif reg_result == 1:
         dic = {"error": 11, "msg": "Exist such username"}
         return jsonify(dic), 409
@@ -109,13 +109,13 @@ def upload_music():
     author = request.form.get('author')
     authorID = int(request.form.get('authorID'))
     date = request.form.get('date')
-    link = request.form.get('link')
+    music_name = request.form.get('musicName')
     img_name = request.form.get('imgName')
 
-    upload_result = db.music_insert(name, author, authorID, date, link, img_name)
+    upload_result = db.music_insert(name, author, authorID, date, music_name, img_name)
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
-        return jsonify(dic), 201
+        return jsonify(dic), 200
     elif upload_result == 1:
         dic = {"error": 21, "msg": "Exist the same name"}
         return jsonify(dic), 409
@@ -139,13 +139,9 @@ def get_comment():
     #print(musicID)
     comments = db.get_comment(musicID)
     dic_musics = {"count": len(comments), "comments": comments}
-    if len(comments) <= 0:
-        dic = {"error": 21, "msg": "No such file"}
-        return jsonify(dic), 404
-    else:
-        dic = {"result": dic_musics, "error": 0, "msg": "OK"}
-        #print (dic)
-        return jsonify(dic), 200
+    dic = {"result": dic_musics, "error": 0, "msg": "OK"}
+    #print (dic)
+    return jsonify(dic), 200
 
 
 @app.route("/download/allcomment", methods=['GET'])
@@ -165,7 +161,7 @@ def upload_comment():
     comment = request.form.get("comment")
     time = request.form.get("time")
     db.upload_comment(musicID, user, userID, time, comment)
-    if reply_userID > 0:   # 评论回复时该值大于0
+    if reply_userID > 0:   # 评论回复时该值大于0，需要向被评论者发送通知
         db.insert_message(user, userID, reply_userID, time, comment)
     dic = {"error": 0, "msg": "OK"}
     return jsonify(dic), 200
@@ -186,7 +182,7 @@ def upload_img():
         dic = {"imgName": filename, "error": 0, "msg": "Upload img success"}
         return jsonify(dic), 200
     dic = {"error": 31, "msg": "Upload img failure"}
-    return jsonify(dic), 409
+    return jsonify(dic), 404
 
 
 @app.route("/upload/musicfile", methods=['POST'])
@@ -204,7 +200,7 @@ def upload_music_file():
         dic = {"fileName": filename, "error": 0, "msg": "Upload music success"}
         return jsonify(dic), 200
     dic = {"error": 31, "msg": "Upload music failure"}
-    return jsonify(dic), 409
+    return jsonify(dic), 404
 
 
 @app.route("/download/img/<img_name>", methods=['GET'])
@@ -280,9 +276,10 @@ def get_uploadmusics():
 @app.route("/download/messages", methods=['GET'])
 def get_messages():
     userID = int(request.args.get("userID"))
-    list_msgs = db.get_message(userID)
+    has_read = request.args.get("hasRead") == 'true'
+    list_msgs, new_msg = db.get_message(userID, has_read)
     list_msgs.reverse()
-    dic_msgs = {"count": len(list_msgs), "messages": list_msgs}
+    dic_msgs = {"count": len(list_msgs), "newMsgNum": new_msg, "messages": list_msgs}
     dic = {"result": dic_msgs, "error": 0, "msg": "OK"}
     return jsonify(dic), 200
 

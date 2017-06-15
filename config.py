@@ -13,6 +13,8 @@ DATABASE_SCHEMA_PATH = os.path.join(DATABASE_DIR, 'schema.sql')
 UPLOAD_FOLDER = ""
 UPLOAD_IMAGE_FOLDER = ""
 
+SYSTEM_BROADCAST = "系统消息"
+
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_FILE_EXTENSIONS = set(['m4a', 'mp3', 'mid'])
 
