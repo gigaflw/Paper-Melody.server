@@ -4,7 +4,7 @@ An app about finger detection and virtual instrument play
 
 # Paper-Melody.server
 
-Server part supporting the social system of `Paper-Melody`
+Server part supporting the social system of [Paper-Melody](https://github.com/hgs1217/Paper-Melody)
 
 # Testing
 
