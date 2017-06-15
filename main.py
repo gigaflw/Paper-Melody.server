@@ -157,7 +157,7 @@ def get_all_comment():
 
 @app.route("/upload/comment", methods=['POST'])
 def upload_comment():
-    print(request.form)
+    #print(request.form)
     musicID = request.form.get("musicID")
     user = request.form.get("user")
     comment = request.form.get("comment")
