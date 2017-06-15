@@ -198,7 +198,7 @@ def upload_music_file():
         if platform.system() == "Windows":
             path = UPLOAD_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
         else:
-            path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
+            path = os.path.join(UPLOAD_FOLDER, filename)   # 服务器使用
         file.save(path)
         print ("upload success: " + filename)
         dic = {"fileName": filename, "error": 0, "msg": "Upload music success"}
