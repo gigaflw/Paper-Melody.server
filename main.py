@@ -27,6 +27,7 @@ def reset_database():
     db.music_insert("National song", "zb", 0, "2017-05-04", "link1", "")
     db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "link2", "")
     db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "link3", "")
+    db.insert_message("系统消息", 0, 0, "2017-06-15", "欢迎来到Paper Melody!!")
 
 
 @app.route('/')
@@ -134,10 +135,10 @@ def reset():
 
 @app.route("/download/comment", methods=['GET'])
 def get_comment():
-    musicID = request.args.get("musicID")
+    musicID = int(request.args.get("musicID"))
     #print(musicID)
     comments = db.get_comment(musicID)
-    dic_musics = {"count": len(comments), "musics": comments}
+    dic_musics = {"count": len(comments), "comments": comments}
     if len(comments) <= 0:
         dic = {"error": 21, "msg": "No such file"}
         return jsonify(dic), 404
@@ -157,17 +158,17 @@ def get_all_comment():
 @app.route("/upload/comment", methods=['POST'])
 def upload_comment():
     #print(request.form)
-    musicID = request.form.get("musicID")
+    musicID = int(request.form.get("musicID"))
     user = request.form.get("user")
+    userID = int(request.form.get("userID"))
+    reply_userID = int(request.form.get("replyUserID"))
     comment = request.form.get("comment")
     time = request.form.get("time")
-    upload_result = db.upload_comment(str(musicID) + str(time), musicID, user, time, comment);
-    if upload_result == 0:
-        dic = {"error": 0, "msg": "OK"}
-        return jsonify(dic), 201
-    elif upload_result == 1:
-        dic = {"error": 21, "msg": "I dont know why"}
-        return jsonify(dic), 409
+    db.upload_comment(musicID, user, userID, time, comment)
+    if reply_userID > 0:   # 评论回复时该值大于0
+        db.insert_message(user, userID, reply_userID, time, comment)
+    dic = {"error": 0, "msg": "OK"}
+    return jsonify(dic), 200
 
 
 @app.route("/upload/img", methods=['POST'])
@@ -273,6 +274,16 @@ def get_uploadmusics():
     #print (list_musics)
     dic_musics = {"count": len(list_musics), "musics": list_musics}
     dic = {"result": dic_musics, "error": 0, "msg": "OK"}
+    return jsonify(dic), 200
+
+
+@app.route("/download/messages", methods=['GET'])
+def get_messages():
+    userID = int(request.args.get("userID"))
+    list_msgs = db.get_message(userID)
+    list_msgs.reverse()
+    dic_msgs = {"count": len(list_msgs), "messages": list_msgs}
+    dic = {"result": dic_msgs, "error": 0, "msg": "OK"}
     return jsonify(dic), 200
 
 

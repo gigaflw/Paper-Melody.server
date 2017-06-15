@@ -87,12 +87,12 @@ class DB(object):
         return 0
 
     def get_comment(self, musicID):
-        cmd = "SELECT MUSICID, AUTHOR, CREATETIME, COMMENT FROM COMMENTS";
+        cmd = "SELECT * FROM COMMENTS";
         cmts = list(self._db.execute(cmd))
         comments = []
-        for music_id, author, create_time, cmt in cmts:
+        for ind, music_id, author, author_id, create_time, cmt in cmts:
             if (musicID == music_id):
-                dic = {"musicID": music_id, "author": author, "createTime": create_time, "comment": cmt}
+                dic = {"musicID": music_id, "author": author, "authorID": author_id, "createTime": create_time, "comment": cmt}
                 comments.append(dic)
         #print(comments)
         return comments
@@ -103,18 +103,13 @@ class DB(object):
         all_comments = list(self._db.execute(cmd))
         return str(all_comments)
         
-    def upload_comment(self, commentID, musicID, user, time, comment):
-        cmd = "SELECT COMMENTID FROM COMMENTS"
-        names = self._db.execute(cmd)
-        if commentID in names:
-            return 1
-        cmd ="INSERT INTO COMMENTS (COMMENTID, MUSICID, AUTHOR, CREATETIME, COMMENT) "+\
-        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(commentID, musicID, user, time, comment)
+    def upload_comment(self, musicID, user, userID, time, comment):
+        cmd ="INSERT INTO COMMENTS (MUSICID, AUTHOR, AUTHORID, CREATETIME, COMMENT)" +\
+                "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(musicID, user, userID, time, comment)
         #print(cmd)
         #print("*************")
         self._db.execute(cmd)
         self._db.commit()
-        return 0
 
     def get_upload_musics(self, userID):
         cmd = "SELECT * FROM ONLINEMUSICS"
@@ -159,7 +154,7 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         num_list = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, authorID, date, link, img_name, up_num, view_num in num_list:
+        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num in num_list:
             if ind in musicIDs:
                 dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date,\
                      "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
@@ -170,6 +165,22 @@ class DB(object):
         cmd = "DELETE FROM FAVORITES WHERE AUTHORID = '{0}' AND MUSICID = '{1}'".format(userID, musicID)
         self._db.execute(cmd)
         self._db.commit()
+
+    def insert_message(self, user, userID, reply_userID, time, msg):
+        cmd ="INSERT INTO MESSAGES (AUTHOR, AUTHORID, REPLYUSERID, CREATETIME, MESSAGE)" +\
+                "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(user, userID, reply_userID, time, msg)
+        self._db.execute(cmd)
+        self._db.commit()
+
+    def get_message(self, userID):
+        cmd = "SELECT * FROM MESSAGES"
+        msg_list = list(self._db.execute(cmd))
+        messages = []
+        for ind, author, authorID, reply_userID, time, msg in msg_list:
+            if userID == reply_userID or authorID <= 0:
+                dic = {"author": author, "createTime": time, "message": msg}
+                messages.append(dic)
+        return messages
 
     def get_next_musicid(self):
         cmd = "SELECT IND, NAME FROM ONLINEMUSICS"
