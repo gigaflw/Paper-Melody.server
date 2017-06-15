@@ -6,19 +6,20 @@
 
 from flask import Flask, request, jsonify, redirect, url_for, send_from_directory, abort
 from database import db
-from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER, UPLOAD_FOLDER
-import os
-import time
+from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER, UPLOAD_FOLDER, ALLOWED_FILE_EXTENSIONS
+import os, time, platform
 
 app = Flask("PaperMelody")
 app.secret_key = "HgS diao"
-app.config['UPLOAD_FOLDER'] = '.\\uploaded'
-app.config['allowed_ext'] = ['mid']
 db.init()
 
 
 def allowed_img(imgname):
     return '.' in imgname and imgname.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_FILE_EXTENSIONS
 
 
 def reset_database():
@@ -101,8 +102,8 @@ def onlinemusics():
     return jsonify(dic), 200
 
 
-@app.route("/uploadmusic", methods=['POST'])
-def uploadmusic():
+@app.route("/upload/music", methods=['POST'])
+def upload_music():
     name = request.form.get('name')
     author = request.form.get('author')
     authorID = int(request.form.get('authorID'))
@@ -119,24 +120,8 @@ def uploadmusic():
         return jsonify(dic), 409
 
 
-@app.route("/uploadFile", methods=['POST'])
-def uploadFile():
-    UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
-    # ALLOWED_EXT = ['mid']
-    # if request.method == 'POST':
-    file = request.files['userfile']
-    if file and file.filename.rsplit('.', 1)[1] in app.config['allowed_ext']:
-        file.save(os.path.join(UPLOAD_FOLDER, file.filename))
-        dic = {"link": url_for('uploaded_file', filename=file.filename), "error": 0, "msg": "OK"}
-        # return dic, 200
-        return dic['link'], 202
-    else:
-        return "error", 410
-        # return {"link": '', "error": 1, "msg": "failed"}, 502
-
-
-@app.route("/downloadmusic/<fname>", methods=['GET'])
-def downloadMusic(fname):
+@app.route("/download/music/<fname>", methods=['GET'])
+def download_music(fname):
     return send_from_directory(UPLOAD_FOLDER, fname, as_attachment=True)
 
 
@@ -147,8 +132,8 @@ def reset():
     return jsonify(dic), 200
 
 
-@app.route("/getcomment", methods=['GET'])
-def getcomment():
+@app.route("/download/comment", methods=['GET'])
+def get_comment():
     musicID = request.args.get("musicID")
     # musicID=request.form.get("id")
     print(musicID)
@@ -163,15 +148,15 @@ def getcomment():
         return jsonify(dic), 200
 
 
-@app.route("/getallcomment", methods=['GET'])
-def getallcomment():
+@app.route("/download/allcomment", methods=['GET'])
+def get_all_comment():
     res = db.get_all_comment()
     print(str(res))
     return res
 
 
-@app.route("/uploadcomment", methods=['POST'])
-def uploadcomment():
+@app.route("/upload/comment", methods=['POST'])
+def upload_comment():
     print(request.form)
     musicID = request.form.get("musicID")
     user = request.form.get("user")
@@ -186,14 +171,16 @@ def uploadcomment():
         return jsonify(dic), 409
 
 
-@app.route("/uploadimg", methods=['POST'])
-def uploadimg():
+@app.route("/upload/img", methods=['POST'])
+def upload_img():
     file = request.files['image']
     if file and allowed_img(file.filename):
         current_time = time.localtime()
         filename =  time.strftime("%Y%m%d%H%M%S", current_time) + '.' + file.filename.rsplit('.', 1)[1]
-        path = UPLOAD_IMAGE_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
-        #path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
+        if platform.system() == "Windows":
+            path = UPLOAD_IMAGE_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+        else:
+            path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
         file.save(path)
         print ("upload success: " + filename)
         dic = {"imgName": filename, "error": 0, "msg": "Upload img success"}
@@ -202,26 +189,45 @@ def uploadimg():
     return jsonify(dic), 409
 
 
-@app.route("/getimage/<img_name>", methods=['GET'])
-def getimage(img_name):
-    path = UPLOAD_IMAGE_FOLDER + "/" + img_name   # windows系统测试时使用下面语句会出现路径双斜杠的问题
-    print (path)
+@app.route("/upload/musicfile", methods=['POST'])
+def upload_music_file():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        current_time = time.localtime()
+        filename =  time.strftime("%Y%m%d%H%M%S", current_time) + '.' + file.filename.rsplit('.', 1)[1]
+        if platform.system() == "Windows":
+            path = UPLOAD_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+        else:
+            path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
+        file.save(path)
+        print ("upload success: " + filename)
+        dic = {"fileName": filename, "error": 0, "msg": "Upload music success"}
+        return jsonify(dic), 200
+    dic = {"error": 31, "msg": "Upload music failure"}
+    return jsonify(dic), 409
+
+
+@app.route("/download/img/<img_name>", methods=['GET'])
+def get_image(img_name):
+    if platform.system() == "Windows":
+        path = UPLOAD_IMAGE_FOLDER + "/" + img_name   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+    else:
+        path = os.path.join(UPLOAD_IMAGE_FOLDER, img_name)  # 服务器使用
     if os.path.isfile(path):
-    #if os.path.isfile(os.path.join(UPLOAD_IMAGE_FOLDER, img_name)):  # 服务器使用
         return send_from_directory(UPLOAD_IMAGE_FOLDER, img_name, as_attachment=True)
     abort(404)
 
 
 @app.route("/addview", methods=['POST'])
-def addview():
+def add_view():
     musicID = request.form.get("musicID")
     db.music_update_num(musicID, 0, 1)
     dic = {"error": 0, "msg": "OK"}
     return jsonify(dic), 200
 
 
-@app.route("/getupvotestatus", methods=['GET'])
-def getupvotestatus():
+@app.route("/upvote/status", methods=['GET'])
+def get_upvote_status():
     userID = int(request.args.get("userID"))
     musicID = int(request.args.get("musicID"))
     result, status = db.judge_favorites(userID, musicID)
@@ -229,8 +235,8 @@ def getupvotestatus():
     return jsonify(dic), 200
 
 
-@app.route("/addupvote", methods=['POST'])
-def addupvote():
+@app.route("/upvote/add", methods=['POST'])
+def add_upvote():
     userID = int(request.form.get("userID"))
     musicID = int(request.form.get("musicID"))
     db.add_favorites(userID, musicID)
@@ -239,8 +245,8 @@ def addupvote():
     return jsonify(dic), 200
 
 
-@app.route("/cancelupvote", methods=['POST'])
-def cancelupvote():
+@app.route("/upvote/cancel", methods=['POST'])
+def cancel_upvote():
     userID = int(request.form.get("userID"))
     musicID = int(request.form.get("musicID"))
     db.delete_favorites(userID, musicID)
@@ -249,8 +255,8 @@ def cancelupvote():
     return jsonify(dic), 200
 
 
-@app.route("/getfavorites", methods=['GET'])
-def getfavorites():
+@app.route("/download/favorites", methods=['GET'])
+def get_favorites():
     userID = int(request.args.get("userID"))
     list_musics = db.get_favorites(userID)
     list_musics.reverse()
@@ -260,8 +266,8 @@ def getfavorites():
     return jsonify(dic), 200
 
 
-@app.route("/getuploadmusics", methods=['GET'])
-def getuploadmusics():
+@app.route("/download/uploadmusics", methods=['GET'])
+def get_uploadmusics():
     userID = int(request.args.get("userID"))
     list_musics = db.get_upload_musics(userID)
     list_musics.reverse()

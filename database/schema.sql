@@ -14,7 +14,7 @@ CREATE TABLE ONLINEMUSICS
     AUTHOR      VARCHAR(32)             NOT NULL,
     AUTHORID    INTEGER                 NOT NULL,
     CREATETIME  DATETIME                NOT NULL,
-    MUSICLINK   VARCHAR(128)            NOT NULL,
+    MUSICNAME   VARCHAR(128)            NOT NULL,
     IMGNAME     VARCHAR(128)            NOT NULL,
     UPVOTENUM   INTEGER                 NOT NULL,
     VIEWNUM     INTEGER                 NOT NULL
