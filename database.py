@@ -83,7 +83,7 @@ class DB(object):
         "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')".format(name, author, authorID, create_time, music_name, img_name, 0, 0)
         self._db.execute(cmd)
         self._db.commit()
-        print('Insert', name, author, authorID, create_time, music_name, img_name)
+        #print('Insert', name, author, authorID, create_time, music_name, img_name)
         return 0
 
     def get_comment(self, musicID):
@@ -94,7 +94,7 @@ class DB(object):
             if (musicID == music_id):
                 dic = {"musicID": music_id, "author": author, "createTime": create_time, "comment": cmt}
                 comments.append(dic)
-        print(comments)
+        #print(comments)
         return comments
         #return ["this is good","I like it"], 2
     
@@ -110,8 +110,8 @@ class DB(object):
             return 1
         cmd ="INSERT INTO COMMENTS (COMMENTID, MUSICID, AUTHOR, CREATETIME, COMMENT) "+\
         "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(commentID, musicID, user, time, comment)
-        print(cmd)
-        print("*************")
+        #print(cmd)
+        #print("*************")
         self._db.execute(cmd)
         self._db.commit()
         return 0

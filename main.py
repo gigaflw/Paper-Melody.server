@@ -58,7 +58,7 @@ def login():
     name = request.form.get('name')
     pw = request.form.get('pw')
     user_dic, select_result = db.user_select(name, pw)
-    print (user_dic)
+    #print (user_dic)
 
     if select_result == 0:
         dic = {"error": 0, "msg": "OK", "result": user_dic}
@@ -96,7 +96,7 @@ def onlinemusics():
         list_musics = sorted(list_musics, key = lambda e: e.__getitem__('upvoteNum')) # 按照点赞数排序
         #print (list_musics)
     list_musics.reverse()
-    print (order)
+    #print (order)
     dic_musics = {"count": len(list_musics), "musics": list_musics}
     dic = {"result": dic_musics, "error": 0, "msg": "OK"}
     return jsonify(dic), 200
@@ -135,8 +135,7 @@ def reset():
 @app.route("/download/comment", methods=['GET'])
 def get_comment():
     musicID = request.args.get("musicID")
-    # musicID=request.form.get("id")
-    print(musicID)
+    #print(musicID)
     comments = db.get_comment(musicID)
     dic_musics = {"count": len(comments), "musics": comments}
     if len(comments) <= 0:
@@ -151,7 +150,7 @@ def get_comment():
 @app.route("/download/allcomment", methods=['GET'])
 def get_all_comment():
     res = db.get_all_comment()
-    print(str(res))
+    #print(str(res))
     return res
 
 
@@ -182,7 +181,7 @@ def upload_img():
         else:
             path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
         file.save(path)
-        print ("upload success: " + filename)
+        #print ("upload success: " + filename)
         dic = {"imgName": filename, "error": 0, "msg": "Upload img success"}
         return jsonify(dic), 200
     dic = {"error": 31, "msg": "Upload img failure"}
@@ -200,7 +199,7 @@ def upload_music_file():
         else:
             path = os.path.join(UPLOAD_FOLDER, filename)   # 服务器使用
         file.save(path)
-        print ("upload success: " + filename)
+        #print ("upload success: " + filename)
         dic = {"fileName": filename, "error": 0, "msg": "Upload music success"}
         return jsonify(dic), 200
     dic = {"error": 31, "msg": "Upload music failure"}
