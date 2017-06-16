@@ -3,6 +3,8 @@ CREATE TABLE USERS
 (
     IND         INTEGER PRIMARY KEY     NOT NULL,
     USERNAME    VARCHAR(32)             NOT NULL UNIQUE,
+    NICKNAME    VARCHAR(32)             NOT NULL,
+    AVATARNAME  VARCHAR(64)             NOT NULL,
     PASSWORD    VARCHAR(32)             NOT NULL
 );
 

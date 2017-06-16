@@ -12,6 +12,7 @@ DATABASE_SCHEMA_PATH = os.path.join(DATABASE_DIR, 'schema.sql')
 
 UPLOAD_FOLDER = ""
 UPLOAD_IMAGE_FOLDER = ""
+UPLOAD_AVATAR_FOLDER = ""
 
 SYSTEM_BROADCAST = "系统消息"
 
@@ -21,6 +22,9 @@ ALLOWED_FILE_EXTENSIONS = set(['m4a', 'mp3', 'mid'])
 if platform.system() == "Windows":  # 本地测试使用的文件夹地址
     UPLOAD_FOLDER = 'D:/Computer Science/Github/Paper-Melody.server/uploads/file' 
     UPLOAD_IMAGE_FOLDER = 'D:/Computer Science/Github/Paper-Melody.server/uploads/image' 
-else:
-    UPLOAD_IMAGE_FOLDER = '/root/Paper-Melody.server/uploads/image'  #服务器使用的文件夹地址
-    UPLOAD_FOLDER = '/root/Paper-Melody.server/uploads/file'  #服务器使用的文件夹地址
+    UPLOAD_AVATAR_FOLDER = "D:/Computer Science/Github/Paper-Melody.server/uploads/avatar"
+else:                               # 服务器使用的文件夹地址
+    UPLOAD_IMAGE_FOLDER = '/root/Paper-Melody.server/uploads/image'  
+    UPLOAD_FOLDER = '/root/Paper-Melody.server/uploads/file' 
+    UPLOAD_AVATAR_FOLDER = "/root/Paper-Melody.server/uploads/avatar"
+

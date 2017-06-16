@@ -34,6 +34,7 @@ class DB(object):
                         cmd = "UPDATE MESSAGES SET NEWS = '{0}' WHERE IND = '{1}'".format(0, ind)
                         self._db.execute(cmd)
                         self._db.commit()
+        print (new_msg)
         return messages, new_msg
 
     def system_broadcast(self, time, msg):
@@ -46,10 +47,10 @@ class DB(object):
     def user_select(self, nm, pw):
         cmd = "SELECT * FROM USERS"
         list_value = self._db.execute(cmd)
-        for ind, name, password in list_value:
+        for ind, name, nickname, avatar_name, password in list_value:
             if name == nm:
                 if password == pw:
-                    dic = {"userID": ind, "name": name, "password": password}
+                    dic = {"userID": ind, "name": name, "password": password, "nickname": nickname, "avatarName": avatar_name}
                     return dic, 0
                 else:
                     return None, 1
@@ -61,21 +62,65 @@ class DB(object):
         dic = dict(map_value)
         if nm in dic.keys():
             return None, 1
-        cmd = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('{0}', '{1}')".format(nm, pw)
+        cmd = "INSERT INTO USERS (USERNAME, PASSWORD, NICKNAME, AVATARNAME) VALUES ('{0}', '{1}', '{2}', '{3}')".format(nm, pw, nm, "")
         self._db.execute(cmd)
         self._db.commit()
         cmd = "SELECT * FROM USERS"
         list_value = self._db.execute(cmd)
-        for ind, name, password in list_value:
+        for ind, name, nickname, avatar_name, password in list_value:
             if name == nm:
-                if password == pw:
-                    dic = {"userID": ind, "name": name, "password": password}
-                    current_time = time.localtime()
-                    str_time =  time.strftime("%Y-%m-%d %H:%M:%S", current_time)
-                    self.insert_message(SYSTEM_BROADCAST, 0, ind, str_time, "欢迎来到Paper Melody!!")
-                    return dic, 0
-                else:
-                    return None, 1
+                dic = {"userID": ind, "name": name, "password": password, "nickname": nickname, "avatarName": avatar_name}
+                current_time = time.localtime()
+                str_time =  time.strftime("%Y-%m-%d %H:%M:%S", current_time)
+                self.insert_message(SYSTEM_BROADCAST, 0, ind, str_time, "欢迎来到Paper Melody!!")
+                return dic, 0
+        return None, 1
+
+    def user_update_avatar(self, userID, avatar_name):
+        cmd = "SELECT IND, AVATARNAME FROM USERS"
+        map_value = self._db.execute(cmd)
+        dic = dict(map_value)
+        old_name = ""
+        if userID in dic.keys():
+            old_name = dic[userID]
+        cmd = "UPDATE USERS SET AVATARNAME = '{0}' WHERE IND = '{1}'".format(avatar_name, userID)
+        self._db.execute(cmd)
+        self._db.commit()
+        cmd = "SELECT * FROM USERS"
+        list_value = self._db.execute(cmd)
+        for ind, name, nickname, avatar_name, password in list_value:
+            if ind == userID:
+                dic = {"userID": ind, "name": name, "password": password, "nickname": nickname, "avatarName": avatar_name}
+                return dic, old_name
+        return None, old_name
+
+    def user_update_nickname(self, userID, nickname):
+        cmd = "UPDATE USERS SET NICKNAME = '{0}' WHERE IND = '{1}'".format(nickname, userID)
+        self._db.execute(cmd)
+        self._db.commit()
+        cmd = "SELECT * FROM USERS"
+        list_value = self._db.execute(cmd)
+        for ind, name, nickname, avatar_name, password in list_value:
+            if ind == userID:
+                dic = {"userID": ind, "name": name, "password": password, "nickname": nickname, "avatarName": avatar_name}
+                return dic, 0
+        return None, 1
+
+    def user_update_password(self, userID, old_pw, new_pw):
+        cmd = "SELECT IND, PASSWORD FROM USERS"
+        map_value = self._db.execute(cmd)
+        dic = dict(map_value)
+        if userID in dic.keys():
+            if old_pw == dic.get(userID):
+                cmd = "UPDATE USERS SET PASSWORD = '{0}' WHERE IND = '{1}'".format(new_pw, userID)
+                self._db.execute(cmd)
+                self._db.commit()
+                cmd = "SELECT * FROM USERS"
+                list_value = self._db.execute(cmd)
+                for ind, name, nickname, avatar_name, password in list_value:
+                    if ind == userID:
+                        dic = {"userID": ind, "name": name, "password": password, "nickname": nickname, "avatarName": avatar_name}
+                        return dic, 0
         return None, 1
 
     def music_get_all(self):

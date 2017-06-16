@@ -6,7 +6,7 @@
 
 from flask import Flask, request, jsonify, redirect, url_for, send_from_directory, abort
 from database import db
-from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER, UPLOAD_FOLDER, ALLOWED_FILE_EXTENSIONS
+from config import ALLOWED_EXTENSIONS, UPLOAD_IMAGE_FOLDER, UPLOAD_FOLDER, ALLOWED_FILE_EXTENSIONS, UPLOAD_AVATAR_FOLDER
 import os, time, platform
 
 app = Flask("PaperMelody")
@@ -86,6 +86,78 @@ def register():
         return jsonify(dic), 409
 
 
+@app.route("/user/password", methods=['POST'])
+def update_password():
+    userID = int(request.form.get('userID'))
+    old_pw = request.form.get('oldPassword')
+    new_pw = request.form.get('newPassword')
+    user_dic, result = db.user_update_password(userID, old_pw, new_pw)
+
+    if result == 0:
+        dic = {"result": user_dic, "error": 0, "msg": "OK"}
+        return jsonify(dic), 200
+    elif result == 1:
+        dic = {"error": 1, "msg": "Wrong password"}
+        return jsonify(dic), 403
+
+
+@app.route("/user/nickname", methods=['POST'])
+def update_nickname():
+    userID = int(request.form.get('userID'))
+    nickname = request.form.get('nickname')
+    user_dic, result = db.user_update_nickname(userID, nickname)
+
+    if result == 0:
+        dic = {"result": user_dic, "error": 0, "msg": "OK"}
+        return jsonify(dic), 200
+    elif result == 1:
+        dic = {"error": 11, "msg": "Exist such username"}
+        return jsonify(dic), 409
+
+
+@app.route("/user/avatar", methods=['POST'])
+def update_avatar():
+    userID = int(request.form.get('userID'))
+    avatar_name = request.form.get('avatarName')
+    user_dic, old_name = db.user_update_avatar(userID, avatar_name)
+    if platform.system() == "Windows":
+        path = UPLOAD_AVATAR_FOLDER + "/" + old_name   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+    else:
+        path = os.path.join(UPLOAD_AVATAR_FOLDER, old_name)  # 服务器使用
+    if os.path.isfile(path):
+        os.remove(path)
+    dic = {"result": user_dic, "error": 0, "msg": "OK"}
+    return jsonify(dic), 200
+
+
+@app.route("/upload/avatar", methods=['POST'])
+def upload_avatar():
+    file = request.files['avatar']
+    if file and allowed_img(file.filename):
+        current_time = time.localtime()
+        filename =  time.strftime("%Y%m%d%H%M%S", current_time) + '.' + file.filename.rsplit('.', 1)[1]
+        if platform.system() == "Windows":
+            path = UPLOAD_AVATAR_FOLDER + "/" + filename   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+        else:
+            path = os.path.join(UPLOAD_AVATAR_FOLDER, filename)   # 服务器使用
+        file.save(path)
+        dic = {"fileName": filename, "error": 0, "msg": "Upload file success"}
+        return jsonify(dic), 200
+    dic = {"error": 31, "msg": "Upload file failure"}
+    return jsonify(dic), 404
+
+
+@app.route("/download/avatar/<fname>", methods=['GET'])
+def download_avatar(fname):
+    if platform.system() == "Windows":
+        path = UPLOAD_AVATAR_FOLDER + "/" + fname   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+    else:
+        path = os.path.join(UPLOAD_AVATAR_FOLDER, fname)  # 服务器使用
+    if os.path.isfile(path):
+        return send_from_directory(UPLOAD_AVATAR_FOLDER, fname, as_attachment=True)
+    abort(404)
+
+
 @app.route("/onlinemusics", methods=['GET'])
 def onlinemusics():
     order = int(request.args.get("order"))
@@ -123,7 +195,13 @@ def upload_music():
 
 @app.route("/download/music/<fname>", methods=['GET'])
 def download_music(fname):
-    return send_from_directory(UPLOAD_FOLDER, fname, as_attachment=True)
+    if platform.system() == "Windows":
+        path = UPLOAD_FOLDER + "/" + fname   # windows系统测试时使用下面语句会出现路径双斜杠的问题
+    else:
+        path = os.path.join(UPLOAD_FOLDER, fname)  # 服务器使用
+    if os.path.isfile(path):
+        return send_from_directory(UPLOAD_FOLDER, fname, as_attachment=True)
+    abort(404)
 
 
 @app.route("/reset", methods=['GET'])
@@ -179,9 +257,9 @@ def upload_img():
             path = os.path.join(UPLOAD_IMAGE_FOLDER, filename)   # 服务器使用
         file.save(path)
         #print ("upload success: " + filename)
-        dic = {"imgName": filename, "error": 0, "msg": "Upload img success"}
+        dic = {"fileName": filename, "error": 0, "msg": "Upload file success"}
         return jsonify(dic), 200
-    dic = {"error": 31, "msg": "Upload img failure"}
+    dic = {"error": 31, "msg": "Upload file failure"}
     return jsonify(dic), 404
 
 
@@ -197,9 +275,9 @@ def upload_music_file():
             path = os.path.join(UPLOAD_FOLDER, filename)   # 服务器使用
         file.save(path)
         #print ("upload success: " + filename)
-        dic = {"fileName": filename, "error": 0, "msg": "Upload music success"}
+        dic = {"fileName": filename, "error": 0, "msg": "Upload file success"}
         return jsonify(dic), 200
-    dic = {"error": 31, "msg": "Upload music failure"}
+    dic = {"error": 31, "msg": "Upload file failure"}
     return jsonify(dic), 404
 
 
