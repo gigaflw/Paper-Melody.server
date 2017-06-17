@@ -24,9 +24,9 @@ def allowed_file(filename):
 
 def reset_database():
     db.reset_db()
-    db.music_insert("National song", "zb", 0, "2017-05-04", "link1", "")
-    db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "link2", "")
-    db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "link3", "")
+    db.music_insert("National song", "zb", 0, "2017-05-04", "Kissbye.mid", "pyj.jpg")
+    db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "Kissbye.mid", "pyj.jpg")
+    db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "Kissbye.mid", "pyj.jpg")
     #db.insert_message("系统消息", 0, 0, "2017-06-15", "欢迎来到Paper Melody!!")
 
 
