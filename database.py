@@ -34,7 +34,6 @@ class DB(object):
                         cmd = "UPDATE MESSAGES SET NEWS = '{0}' WHERE IND = '{1}'".format(0, ind)
                         self._db.execute(cmd)
                         self._db.commit()
-        print (new_msg)
         return messages, new_msg
 
     def system_broadcast(self, time, msg):
