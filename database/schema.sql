@@ -29,6 +29,7 @@ CREATE TABLE COMMENTS
     MUSICID     INTEGER                 NOT NULL,
     AUTHOR      VARCHAR(32)             NOT NULL,
     AUTHORID    INTEGER                 NOT NULL,
+    AUTHORAVATAR    VARCHAR(64)         NOT NULL,
     CREATETIME  VARCHAR(64)             NOT NULL,
     COMMENT     VARCHAR(256)            NOT NULL
 );

@@ -235,10 +235,11 @@ def upload_comment():
     musicID = int(request.form.get("musicID"))
     user = request.form.get("user")
     userID = int(request.form.get("userID"))
+    user_avatar = request.form.get("userAvatarName")
     reply_userID = int(request.form.get("replyUserID"))
     comment = request.form.get("comment")
     time = request.form.get("time")
-    db.upload_comment(musicID, user, userID, time, comment)
+    db.upload_comment(musicID, user, userID, user_avatar, time, comment)
     if reply_userID > 0:   # 评论回复时该值大于0，需要向被评论者发送通知
         db.insert_message(user, userID, reply_userID, time, comment)
     dic = {"error": 0, "msg": "OK"}

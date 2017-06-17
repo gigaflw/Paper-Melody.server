@@ -167,9 +167,9 @@ class DB(object):
         cmd = "SELECT * FROM COMMENTS";
         cmts = list(self._db.execute(cmd))
         comments = []
-        for ind, music_id, author, author_id, create_time, cmt in cmts:
+        for ind, music_id, author, author_id, author_avatar, create_time, cmt in cmts:
             if (musicID == music_id):
-                dic = {"musicID": music_id, "author": author, "authorID": author_id, "createTime": create_time, "comment": cmt}
+                dic = {"musicID": music_id, "author": author, "authorID": author_id, "authorAvatar": author_avatar, "createTime": create_time, "comment": cmt}
                 comments.append(dic)
         #print(comments)
         return comments
@@ -180,9 +180,9 @@ class DB(object):
         all_comments = list(self._db.execute(cmd))
         return str(all_comments)
         
-    def upload_comment(self, musicID, user, userID, time, comment):
-        cmd ="INSERT INTO COMMENTS (MUSICID, AUTHOR, AUTHORID, CREATETIME, COMMENT)" +\
-                "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(musicID, user, userID, time, comment)
+    def upload_comment(self, musicID, user, userID, user_avatar, time, comment):
+        cmd ="INSERT INTO COMMENTS (MUSICID, AUTHOR, AUTHORID, AUTHORAVATAR, CREATETIME, COMMENT)" +\
+                "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(musicID, user, userID, user_avatar, time, comment)
         #print(cmd)
         #print("*************")
         self._db.execute(cmd)
