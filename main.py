@@ -24,9 +24,9 @@ def allowed_file(filename):
 
 def reset_database():
     db.reset_db()
-    db.music_insert("National song", "zb", 0, "2017-05-04", "Kissbye.mid", "pyj.jpg", "nothing")
-    db.music_insert("Gongqingtuan", "pyj", 1, "2017-04-04", "Kissbye.mid", "pyj.jpg", "something")
-    db.music_insert("shaoxiandui", "tth", 2, "2015-05-04", "Kissbye.mid", "pyj.jpg", "anything")
+    db.music_insert("National song", "zb", 0, "default.jpg", "2017-05-04", "default.mid", "default.jpg", "nothing")
+    db.music_insert("Gongqingtuan", "pyj", 1, "default.jpg", "2017-04-04", "default.mid", "default.jpg", "something")
+    db.music_insert("shaoxiandui", "tth", 2, "default.jpg", "2015-05-04", "default.mid", "default.jpg", "anything")
     #db.insert_message("系统消息", 0, 0, "2017-06-15", "欢迎来到Paper Melody!!")
 
 
@@ -184,8 +184,9 @@ def upload_music():
     music_name = request.form.get('musicName')
     img_name = request.form.get('imgName')
     info = request.form.get('musicInfo')
+    author_avatar = request.form.get('authorAvatarName')
 
-    upload_result = db.music_insert(name, author, authorID, date, music_name, img_name, info)
+    upload_result = db.music_insert(name, author, authorID, author_avatar, date, music_name, img_name, info)
     if upload_result == 0:
         dic = {"error": 0, "msg": "OK"}
         return jsonify(dic), 200
