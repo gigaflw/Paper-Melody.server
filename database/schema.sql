@@ -19,7 +19,8 @@ CREATE TABLE ONLINEMUSICS
     MUSICNAME   VARCHAR(64)             NOT NULL,
     IMGNAME     VARCHAR(64)             NOT NULL,
     UPVOTENUM   INTEGER                 NOT NULL,
-    VIEWNUM     INTEGER                 NOT NULL
+    VIEWNUM     INTEGER                 NOT NULL,
+    INFO        VARCHAR(128)            NOT NULL
 );
 
 DROP TABLE IF EXISTS COMMENTS;

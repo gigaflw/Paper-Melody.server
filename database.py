@@ -126,9 +126,9 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         online_musics = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num in online_musics:
+        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num, info in online_musics:
             dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date,\
-                 "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+                 "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num, "musicInfo": info}
             musics.append(dic)
         return musics
 
@@ -138,12 +138,12 @@ class DB(object):
         upvote = 0
         view = 0
         dic = {}
-        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num in num_list:
+        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num, info in num_list:
             if int(musicID) == ind:
                 upvote = up_num + up_num_differ
                 view = view_num + view_num_differ
                 dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date,\
-                     "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+                    "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num, "musicInfo": info}
                 break
         #print (str(musicID)+"\t"+str(view)+"\t"+str(upvote))
         cmd = "UPDATE ONLINEMUSICS SET UPVOTENUM = '{0}', VIEWNUM = '{1}' WHERE IND = '{2}'".format(upvote, view, musicID)
@@ -151,13 +151,13 @@ class DB(object):
         self._db.commit()
         return dic
 
-    def music_insert(self, name, author, authorID, create_time, music_name, img_name):
+    def music_insert(self, name, author, authorID, create_time, music_name, img_name, info):
         cmd = "SELECT NAME FROM ONLINEMUSICS"
         names = self._db.execute(cmd)
         if name in names:
             return 1
-        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, AUTHORID, CREATETIME, MUSICNAME, IMGNAME, UPVOTENUM, VIEWNUM) "+\
-        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')".format(name, author, authorID, create_time, music_name, img_name, 0, 0)
+        cmd = "INSERT INTO ONLINEMUSICS (NAME, AUTHOR, AUTHORID, CREATETIME, MUSICNAME, IMGNAME, UPVOTENUM, VIEWNUM, INFO) "+\
+        "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')".format(name, author, authorID, create_time, music_name, img_name, 0, 0, info)
         self._db.execute(cmd)
         self._db.commit()
         #print('Insert', name, author, authorID, create_time, music_name, img_name)
@@ -192,10 +192,10 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         num_list = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num in num_list:
+        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num, info in num_list:
             if authorID == userID:
                 dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date,\
-                     "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+                    "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num, "musicInfo": info}
                 musics.append(dic)
         return musics
 
@@ -231,10 +231,10 @@ class DB(object):
         cmd = "SELECT * FROM ONLINEMUSICS"
         num_list = list(self._db.execute(cmd))
         musics = []
-        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num in num_list:
+        for ind, name, author, authorID, date, music_name, img_name, up_num, view_num, info in num_list:
             if ind in musicIDs:
                 dic = {"musicID": ind, "name": name, "author": author, "authorID": authorID, "date": date,\
-                     "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num}
+                    "musicName": music_name, "imgName": img_name, "upvoteNum": up_num, "viewNum": view_num, "musicInfo": info}
                 musics.append(dic)
         return musics
 
