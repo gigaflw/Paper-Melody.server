@@ -24,10 +24,11 @@ def allowed_file(filename):
 
 def reset_database():
     db.reset_db()
-    db.music_insert("National song", "zb", 0, "default.jpg", "2017-05-04", "default.mid", "default.jpg", "nothing")
-    db.music_insert("Gongqingtuan", "pyj", 1, "default.jpg", "2017-04-04", "default.mid", "default.jpg", "something")
-    db.music_insert("shaoxiandui", "tth", 2, "default.jpg", "2015-05-04", "default.mid", "default.jpg", "anything")
+    db.music_insert("四月は君の嘘", "Anonymous User", 0, "default.png", "2017-05-04 11:40:50", "default (1).mp3", "default (1).jpg", "挫けそうになる私を支えてください")
+    db.music_insert("River Flows in You", "Anonymous User", 0, "default.png", "2017-04-04 11:40:50", "default (2).mp3", "default (2).jpg", "River Flows in You")
+    db.music_insert("天空之城", "Anonymous User", 0, "default.png", "2015-05-04 11:40:50", "default (3).mp3", "default (3).jpg", "天空之城（钢琴版）")
     #db.insert_message("系统消息", 0, 0, "2017-06-15", "欢迎来到Paper Melody!!")
+
 
 
 @app.route('/')
